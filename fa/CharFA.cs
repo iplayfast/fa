@@ -104,28 +104,27 @@ namespace FA
 			writer.WriteLine("node [shape=circle]");
 			var finals = new List<FA<char,TAccept>>();
 			var neutrals = new List<FA<char,TAccept>>();
-			var accepting = new List<FA<char,TAccept>>();
+			var accepting = FillAcceptingStates(closure, null);
 			foreach (var ffa in closure)
-			{
-				if (ffa.IsAccepting)
-					accepting.Add(ffa);
 				if (ffa.IsFinal && !ffa.IsAccepting)
 					finals.Add(ffa);
-			}
+
 			IList<FA<char,TAccept>> fromStates = null;
 			IList<FA<char,TAccept>> toStates = null;
+
 			char tchar = default(char);
-			toStates = closure[0].FillEpsilonClosure();
 			if (null != options.DebugString)
 			{
+				toStates = closure[0].FillEpsilonClosure();
+				if (null==fromStates)
+					fromStates = toStates;
 				foreach (char ch in options.DebugString)
 				{
-					fromStates = FillEpsilonClosure(toStates, null);
 					tchar = ch;
 					toStates = FillMove(fromStates, ch);
 					if (0 == toStates.Count)
 						break;
-
+					fromStates = toStates;
 				}
 			}
 			if (null != toStates)
@@ -139,7 +138,7 @@ namespace FA
 				{
 					if (ffa.IsAccepting)
 						accepting.Add(ffa);
-					else if (0 == ffa.Transitions.Count && 1 == ffa.EpsilonTransitions.Count)
+					else if (ffa.IsNeutral)
 						neutrals.Add(ffa);
 				}
 				var rngGrps = ((CharFA<TAccept>)ffa).FillInputTransitionRangesGroupedByState(null);
@@ -153,9 +152,8 @@ namespace FA
 					writer.Write(di.ToString());
 					writer.Write(" [label=\"");
 					var sb = new StringBuilder();
-					foreach (CharRange range in rngGrp.Value)
+					foreach (var range in rngGrp.Value)
 						_AppendRangeTo(sb, range);
-
 					if (sb.Length != 1 || " " == sb.ToString())
 					{
 						writer.Write('[');
@@ -176,8 +174,6 @@ namespace FA
 					writer.Write(closure.IndexOf(fffa));
 					writer.WriteLine(" [style=dashed,color=gray]");
 				}
-
-
 				++i;
 			}
 			string delim = "";
@@ -190,13 +186,9 @@ namespace FA
 				if (null != options.DebugString)
 				{
 					if (null != toStates && toStates.Contains(ffa))
-					{
 						writer.Write("color=green,");
-					}
-					if (null != fromStates && fromStates.Contains(ffa) && (null == toStates || !toStates.Contains(ffa)))
-					{
+					else if (null != fromStates && fromStates.Contains(ffa) && (null == toStates || !toStates.Contains(ffa)))
 						writer.Write("color=darkgreen,");
-					}
 				}
 				writer.Write("label=<");
 				writer.Write("<TABLE BORDER=\"0\"><TR><TD>");
@@ -205,12 +197,46 @@ namespace FA
 				writer.Write(i);
 				writer.Write("</SUB></TD></TR>");
 
+				if (null != options.DebugString && null != options.DebugSourceNfa && null != ffa.Tag)
+				{
+					var tags = ffa.Tag as IEnumerable;
+					if (null != tags || ffa.Tag is FA<char,TAccept>)
+					{
+						writer.Write("<TR><TD>{");
+						if (null == tags)
+						{
+							writer.Write(" q<SUB>");
+							writer.Write(options.DebugSourceNfa.FillClosure().IndexOf((FA<char,TAccept>)ffa.Tag).ToString());
+							writer.Write("</SUB>");
+						}
+						else
+						{
+							delim = "";
+							foreach (var tag in tags)
+							{
+								writer.Write(delim);
+								if (tag is FA<char,TAccept>)
+								{
+									writer.Write(delim);
+									writer.Write(" q<SUB>");
+									writer.Write(options.DebugSourceNfa.FillClosure().IndexOf((FA<char,TAccept>)tag).ToString());
+									writer.Write("</SUB>");
+									// putting a comma here is what we'd like
+									// but it breaks dot no matter how its encoded
+									delim = @" ";
+								}
+							}
+						}
+						writer.Write(" }</TD></TR>");
+					}
+
+				}
 				if (ffa.IsAccepting)
 				{
 					writer.Write("<TR><TD>");
 					writer.Write(Convert.ToString(ffa.AcceptSymbol).Replace("\"", "&quot;"));
 					writer.Write("</TD></TR>");
-
+					
 				}
 				writer.Write("</TABLE>");
 				writer.Write(">");
@@ -243,7 +269,7 @@ namespace FA
 			delim = "";
 			if (0 < neutrals.Count)
 			{
-				delim = "";
+
 				foreach (var ntfa in neutrals)
 				{
 					if ((null == fromStates || !fromStates.Contains(ntfa)) &&
@@ -258,38 +284,6 @@ namespace FA
 				}
 				writer.WriteLine(" [color=gray]");
 				delim = "";
-				if (null != fromStates)
-				{
-					foreach (var ntfa in neutrals)
-					{
-						if (fromStates.Contains(ntfa) && (null == toStates || !toStates.Contains(ntfa)))
-						{
-							writer.Write(delim);
-							writer.Write(spfx);
-							writer.Write(closure.IndexOf(ntfa));
-							delim = ",";
-						}
-					}
-
-					writer.WriteLine(" [color=darkgreen]");
-				}
-				if (null != toStates)
-				{
-					delim = "";
-					foreach (var ntfa in neutrals)
-					{
-						if (toStates.Contains(ntfa))
-						{
-							writer.Write(delim);
-							writer.Write(spfx);
-							writer.Write(closure.IndexOf(ntfa));
-							delim = ",";
-						}
-					}
-					writer.WriteLine(" [color=green]");
-				}
-
-
 			}
 			delim = "";
 			if (0 < finals.Count)

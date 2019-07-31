@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fa", "fa\fa.csproj", "{B05F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fascratch", "fascratch\fascratch.csproj", "{15BE039C-C7A7-4F62-BFE9-EDD33995DD5A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fagui", "fagui\fagui.csproj", "{32AE975E-116C-4917-A5C2-A3D0C81906C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{15BE039C-C7A7-4F62-BFE9-EDD33995DD5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15BE039C-C7A7-4F62-BFE9-EDD33995DD5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15BE039C-C7A7-4F62-BFE9-EDD33995DD5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32AE975E-116C-4917-A5C2-A3D0C81906C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32AE975E-116C-4917-A5C2-A3D0C81906C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32AE975E-116C-4917-A5C2-A3D0C81906C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32AE975E-116C-4917-A5C2-A3D0C81906C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

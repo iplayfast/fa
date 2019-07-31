@@ -351,7 +351,7 @@ namespace FA
 							{
 								var inps = td[repl.Key];
 								td.Remove(repl.Key);
-								td.Add(repl.Value, inps);
+								td.Add(repl.Key, inps);
 							}
 
 							int lc = s.EpsilonTransitions.Count;
@@ -512,7 +512,7 @@ namespace FA
 
 			// add it to the dfa map
 			dfaMap.Add(states, dfa);
-
+			dfa.Tag = new List<FA<TInput, TAccept>>(states);
 			// add it to the unmarked states, signalling that we still have work to do.
 			unmarked.Add(dfa);
 			bool done = false;
@@ -573,6 +573,7 @@ namespace FA
 									ndfa.AcceptSymbol = acc[0]; // could throw, instead just set it to the first state's accept
 								dfaMap.Add(ns, ndfa);
 								unmarked.Add(ndfa);
+								ndfa.Tag = new List<FA<TInput, TAccept>>(ns);
 								done = false;
 							}
 							dfa.Transitions.Add(input, ndfa);
@@ -701,7 +702,8 @@ namespace FA
 			IList<FA<TInput, TAccept>> fromStates = null;
 			IList<FA<TInput, TAccept>> toStates = null;
 			var tchar = default(TInput);
-			toStates = closure[0].FillEpsilonClosure();
+			if(null!=options.DebugString)
+				toStates = closure[0].FillEpsilonClosure();
 			if (null != options.DebugString)
 			{
 				foreach (var ch in options.DebugString)

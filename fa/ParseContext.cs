@@ -15,7 +15,7 @@ namespace FA
 	/// An exception encountered during parsing where the stream contains one thing, but another is expected
 	/// </summary>
 	[Serializable]
-	public sealed class ExpectingException : Exception
+	sealed class ExpectingException : Exception
 	{
 		/// <summary>
 		/// Initialize the exception with the specified message.
